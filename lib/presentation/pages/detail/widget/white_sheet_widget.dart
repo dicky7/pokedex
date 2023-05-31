@@ -3,17 +3,19 @@ import 'package:poxedex/presentation/pages/detail/widget/pageview/base_stats_vie
 import 'package:poxedex/presentation/pages/detail/widget/pageview/detail_about_view.dart';
 import 'package:poxedex/presentation/pages/detail/widget/pageview/more_info_view.dart';
 import 'package:poxedex/presentation/pages/detail/widget/pageview/move_view.dart';
+import 'package:poxedex/presentation/providers/details/pokemon_detail_provider.dart';
 import 'package:poxedex/utils/extension/extension.dart';
+import 'package:poxedex/utils/state_enum.dart';
 import 'package:poxedex/utils/styles/styles.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../data/models/pokemon_about_model.dart';
 import '../../../../data/models/pokemon_detail_model.dart';
 
 class WhiteSheetWidget extends StatefulWidget {
   final PokemonDetailModel pokemonDetail;
-  final PokemonAboutModel pokemonAbout;
 
-  WhiteSheetWidget({Key? key, required this.pokemonDetail, required this.pokemonAbout}) : super(key: key);
+  WhiteSheetWidget({Key? key, required this.pokemonDetail}) : super(key: key);
 
   @override
   State<WhiteSheetWidget> createState() => _WhiteSheetWidgetState();
@@ -31,46 +33,57 @@ class _WhiteSheetWidgetState extends State<WhiteSheetWidget> {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      height: context.height(0.6),
-      width: context.width(1),
-      decoration: BoxDecoration(
-          color: kPrimaryColor,
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15), topRight: Radius.circular(15))),
-      child: Column(
-        children: [
-          //adding some space
-          SizedBox(
-            height: context.height(0.065),
-          ),
-          SizedBox(
-            height: context.height(.06),
-            child: Center(child: customScrollerBuilder()),
-          ),
-          Expanded(
-            child: PageView(
-              controller: _tabController,
-              physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              onPageChanged: (int index) {
-                setState(() {
-                  // update the tab index
-                  _currentTabIndex = index;
-                });
-              },
+    return Consumer<PokemonDetailProvider>(
+      builder: (context, state, child) {
+        if (state.aboutState == ResultState.Error) {
+          return Center(child: Text(state.aboutMessage));
+        } else if (state.aboutState == ResultState.Success) {
+          return Container(
+            height: context.height(0.6),
+            width: context.width(1),
+            decoration: BoxDecoration(
+                color: kPrimaryColor,
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(15), topRight: Radius.circular(15))),
+            child: Column(
               children: [
-                DetailAboutView(pokemonAbout: widget.pokemonAbout, pokemonDetail: widget.pokemonDetail),
-                BaseStatsView(pokemonDetail: widget.pokemonDetail),
-                MoveView(pokemonDetail: widget.pokemonDetail),
-                MoreInfoView(pokemonAbout: widget.pokemonAbout)
+                //adding some space
+                SizedBox(
+                  height: context.height(0.065),
+                ),
+                SizedBox(
+                  height: context.height(.06),
+                  child: Center(child: customScrollerBuilder()),
+                ),
+                Expanded(
+                  child: PageView(
+                    controller: _tabController,
+                    physics: const BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    onPageChanged: (int index) {
+                      setState(() {
+                        // update the tab index
+                        _currentTabIndex = index;
+                      });
+                    },
+                    children: [
+                      DetailAboutView(pokemonAbout: state.pokemonAbout, pokemonDetail: widget.pokemonDetail),
+                      BaseStatsView(pokemonDetail: widget.pokemonDetail),
+                      MoveView(pokemonDetail: widget.pokemonDetail),
+                      MoreInfoView(pokemonAbout: state.pokemonAbout)
 
+                    ],
+
+                  ),
+                )
               ],
-
             ),
-          )
-        ],
-      ),
+          );
+        } else{
+          return SizedBox();
+        }
+
+      },
     );
   }
 

@@ -75,10 +75,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                         ),
                         Positioned(
                           bottom: 0,
-                          child: WhiteSheetWidget(
-                            pokemonAbout: state.pokemonAbout,
-                            pokemonDetail: state.pokemonDetail,
-                          ),
+                          child: WhiteSheetWidget(pokemonDetail: state.pokemonDetail),
                         ),
                         SizedBox(
                           height: context.height(0.33),

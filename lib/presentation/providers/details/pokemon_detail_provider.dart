@@ -15,9 +15,6 @@ class PokemonDetailProvider extends ChangeNotifier{
   late PokemonDetailModel _pokemonDetail;
   PokemonDetailModel get pokemonDetail => _pokemonDetail;
 
-  late PokemonAboutModel _pokemonAbout;
-  PokemonAboutModel get pokemonAbout => _pokemonAbout;
-
   String _message = "";
   String get message => _message;
 
@@ -40,15 +37,25 @@ class PokemonDetailProvider extends ChangeNotifier{
     );
   }
 
+  ResultState _aboutState = ResultState.Initial;
+  ResultState get aboutState => _aboutState;
+
+  late PokemonAboutModel _pokemonAbout;
+  PokemonAboutModel get pokemonAbout => _pokemonAbout;
+
+  String _aboutMessage = "";
+  String get aboutMessage => _aboutMessage;
+
   Future<void> getPokemonAbout(String name) async{
     final result = await repository.getPokemonAbout(name);
     result.fold(
       (error) {
-        _pokemonState = ResultState.Error;
+        _aboutState = ResultState.Error;
         notifyListeners();
-        return _message = error.message;
+        return _aboutMessage = error.message;
       },
       (success) {
+        _aboutState = ResultState.Success;
         _pokemonAbout = success;
         notifyListeners();
       },
