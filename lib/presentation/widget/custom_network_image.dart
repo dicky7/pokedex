@@ -18,7 +18,7 @@ class CustomNetworkImage extends StatelessWidget {
       imageUrl: imageUrl,
       height: radius,
       errorWidget: (context, url, error) => SizedBox(),
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
     );
   }
 }

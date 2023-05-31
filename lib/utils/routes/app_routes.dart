@@ -17,8 +17,13 @@ class AppRoutes{
           builder: (context) => const HomePage(),
         );
       case PokemonDetailPage.routeName:
+        final arguments = settings.arguments as PokemonDetailPage;
         return MaterialPageRoute(
-          builder: (context) => const PokemonDetailPage(),
+          builder: (context) => PokemonDetailPage(
+            pokemonName: arguments.pokemonName,
+            imageUrl: arguments.imageUrl,
+            cardColor: arguments.cardColor,
+          ),
         );
       default:
         return MaterialPageRoute(

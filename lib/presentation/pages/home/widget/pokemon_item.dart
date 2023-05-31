@@ -1,100 +1,91 @@
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
+import 'package:poxedex/data/models/pokemon_basic_model.dart';
+import 'package:poxedex/presentation/pages/detail/pokemon_detail_page.dart';
+import 'package:poxedex/presentation/widget/custom_loading.dart';
 import 'package:poxedex/presentation/widget/custom_network_image.dart';
 import 'package:poxedex/utils/extension/extension.dart';
 import 'package:poxedex/utils/helpers/helpers.dart';
 import 'package:poxedex/utils/styles/styles.dart';
 
-class PokemonItem extends StatelessWidget {
-  const PokemonItem({Key? key}) : super(key: key);
+import '../../../../utils/colors_generator.dart';
+
+class PokemonItem extends StatefulWidget {
+  final String pokemonName;
+  final String imageUrl;
+  final String pokemonNumber;
+
+  const PokemonItem({Key? key, required this.pokemonName, required this.imageUrl, required this.pokemonNumber}) : super(key: key);
+
+  @override
+  State<PokemonItem> createState() => _PokemonItemState();
+}
+
+class _PokemonItemState extends State<PokemonItem> {
+  Color cardColor = kTransparentColor;
+  bool colorReady = false;
+
+  @override
+  void initState() {
+    generateContainerColor();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: kRedColor
-      ),
-      child: Stack(
-        children: [
-          _buildPokeballDecoration(context),
-          _buildPokemon(context),
-          _buildPokemonNumber(),
-          _buildPokemonContent()
-        ],
-      ),
-    );
-  }
+    if (colorReady) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(
+              context,
+              PokemonDetailPage.routeName,
+              arguments: PokemonDetailPage(
+                  pokemonName: widget.pokemonName,
+                  cardColor: cardColor,
+                  imageUrl: widget.imageUrl));
 
-  // decoration pokeball
-  Widget _buildPokeballDecoration(BuildContext context) {
-    final pokeballSize = context.height(0.76);
-
-    return Positioned(
-      bottom: -pokeballSize * 0.08,
-      right: -pokeballSize *0.04,
-      child: Image.asset(
-        'assets/pokeball.png',
-        width: context.width(0.33),
-        height: context.width(0.33),
-        color: Colors.white.withOpacity(0.14),
-      ),
-    );
-  }
-
-  Widget _buildPokemonNumber() {
-    final Faker faker = Faker();
-    return Positioned(
-      top: 10,
-      right: 14,
-      child: Text(
-        '#012',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.black12,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPokemon(BuildContext context) {
-    final pokemonSize = context.height(0.76);
-    return Positioned(
-      bottom: 4,
-      right: 3,
-      child: CustomNetworkImage(
-        imageUrl: Helpers.randomPictureUrl(),
-        radius: context.width(0.23),
-      ),
-    );
-  }
-
-  Widget _buildPokemonContent(){
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 24, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Hero(
-              tag: 'pokemon.number + pokemon.name',
-              child: Text(
-                'pokemon.name',
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 0.7,
-                  fontWeight: FontWeight.bold,
-                  color: kPrimaryColor,
-                ),
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: cardColor
+          ),
+          child: Column(
+            children: [
+              CustomNetworkImage(
+                imageUrl: widget.imageUrl,
+                radius: context.height(0.13),
               ),
-            ),
-            SizedBox(height: 10),
-          ],
+              Text(
+                widget.pokemonName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: kBlackColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+              Text(
+                  "#${widget.pokemonNumber}",
+                  style: TextStyle(color: kGreyColor, fontSize: 17)),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }else{
+      return const CustomLoading();
+    }
+  }
+
+  Future<void> generateContainerColor() async {
+    ColorsGenerator colorsGenerator = ColorsGenerator();
+    Color generatedColor =
+    await colorsGenerator.generateCardColor(widget.imageUrl, false);
+    if (mounted) {
+      setState(() {
+        colorReady = true;
+        cardColor = generatedColor;
+      });
+    }
   }
 }
